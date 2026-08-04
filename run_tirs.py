@@ -12,7 +12,10 @@ import control_file as cf
 from lsp1d import postproc, solver
 from lsp1d.loading import LaserPulseParams
 
-SHOTS = [15, 16, 18, 19, 13, 6, 7]
+SHOTS = [15, 16, 18, 19, 13, 6, 7,
+         0, 4, 5, 17, 20,
+         32, 33, 34, 35, 38, 39, 40, 41, 46, 47]
+SKIP_IF_EXISTS = True  # ne recalcule pas les tirs deja simules (fichier .csv present)
 DX_TARGET = 0.208  # um, meme finesse que le run de reference valide contre Radioss
 T_MAX_PER_UM = 0.4  # ns/um, meme ratio que le defaut (80ns / 200um)
 N_OUTPUT_SNAPSHOTS = 160  # meme ordre de grandeur que le defaut (80ns / 0.5ns)
@@ -37,6 +40,16 @@ os.makedirs("tirs", exist_ok=True)
 results = []
 for num in SHOTS:
     d = shots_data[num]
+    prefix = f"tirs/tir_{num:02d}"
+    csv_path = prefix + "_free_surface_velocity.csv"
+
+    if SKIP_IF_EXISTS and os.path.exists(csv_path):
+        sim = np.loadtxt(csv_path, delimiter=",", skiprows=1)
+        vsl_sim = np.abs(sim[:, 1]).max() * 1000.0
+        print(f"Tir {num}: deja simule, on garde {csv_path}", flush=True)
+        results.append((num, d["epaisseur_mm"], d["I_GWcm2"], d["vsl_exp"], vsl_sim))
+        continue
+
     length_um = d["epaisseur_mm"] * 1000.0
     Imax = d["I_GWcm2"]
     Tpul = d["duree_ns"]
@@ -54,8 +67,7 @@ for num in SHOTS:
           f"n_cells={n_cells} t_max={t_max:.1f}ns ...", flush=True)
     history = solver.run(mesh, state, cf.MATERIAL, cfg, pulses)
 
-    prefix = f"tirs/tir_{num:02d}"
-    postproc.save_free_surface_velocity(history, prefix + "_free_surface_velocity.csv")
+    postproc.save_free_surface_velocity(history, csv_path)
     postproc.save_free_surface_velocity_excel(history, prefix + "_free_surface_velocity.xlsx")
 
     t_fs, u_fs = postproc.free_surface_velocity(history)
