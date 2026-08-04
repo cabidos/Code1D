@@ -34,18 +34,20 @@ Gamma0 = 2.0               # coefficient de Gruneisen a rho0 — idem (Radioss)
 #           * (1 - T_star^JC_m)
 # Carte Radioss (Al) : E=69 GPa, nu=0.33 -> G=E/(2*(1+nu))=25.94 GPa.
 # a=324 MPa, b=113 MPa, n=0.42, c=0.013, EPS_DOT_0=597 /s.
-# Pas de terme thermique dans la carte Radioss fournie (JC_m/T_melt
-# inchanges, hors perimetre de cette mise a jour).
+# Pas de terme thermique dans la carte Radioss fournie -> terme
+# desactive ici via T_melt tres grand (T_star reste ~0, facteur
+# thermique ~1 quelle que soit la temperature atteinte), plutot que
+# JC_m=0 qui casserait la formule (1-T_star**0 = 0 partout).
 # =====================================================================
 G = 25.94                     # GPa, module de cisaillement (E=69GPa, nu=0.33)
 JC_A = 0.324                   # GPa, limite elastique (a)
 JC_B = 0.113                     # GPa, coefficient d'ecrouissage (b)
 JC_n = 0.42                        # exposant d'ecrouissage (n)
 JC_C = 0.013                         # coefficient de sensibilite a la vitesse (c)
-JC_m = 1.0                             # exposant d'adoucissement thermique
+JC_m = 1.0                             # exposant d'adoucissement thermique (sans effet, terme desactive via T_melt)
 eps_dot_ref = 5.97e-7                     # 1/ns (= 597 /s physique, EPS_DOT_0 Radioss)
 T_ref = 293.0                              # K, temperature de reference
-T_melt = 775.0                               # K, temperature de fusion
+T_melt = 1.0e6                               # K, "infini" -> terme thermique desactive (pas dans la carte Radioss)
 cv = 9.0e-4                                    # (km/s)^2/K, capacite calorifique (~0.9 J/g/K)
 
 # =====================================================================
