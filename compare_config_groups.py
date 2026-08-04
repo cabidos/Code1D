@@ -36,6 +36,7 @@ GROUPS = [
 EXP_DIR = "tirs/Resultat exp"
 H5_PATH = "tirs/campagne_HERA_simu.h5"
 SPREAD_THRESHOLD = 1.25  # I_max/I_min au-dela duquel on montre 2 courbes Radioss
+SIGN_FLIP_EXP = {46}  # tirs ou le signe VISAR brut est inverse (verifie visuellement)
 
 wb = load_workbook("Fichier_Tir.xlsx", data_only=True)
 ws = wb["Feuil1"]
@@ -83,7 +84,7 @@ with h5py.File(H5_PATH, "r") as h5f:
         for j, num in enumerate(ref_shots):
             radioss = h5f[f"Shot_{num}/DataAnalysis/velocity_simu"][:]
             t_rad = radioss[:, 0] * 1e9
-            v_rad = np.abs(radioss[:, 1]) * 1000.0
+            v_rad = radioss[:, 1] * 1000.0  # deja bien signee dans le HDF5 (pas d'abs : garde le rebond negatif)
             radioss_curves[num] = (t_rad, v_rad)
             ax.plot(t_rad, v_rad, color="black",
                      linestyle="-" if j == 0 else "--",
@@ -102,6 +103,8 @@ with h5py.File(H5_PATH, "r") as h5f:
             exp = np.loadtxt(exp_path, delimiter=",")
             t_exp = exp[:, 0] * 1e9
             v_exp = exp[:, 1] * 1000.0
+            if num in SIGN_FLIP_EXP:
+                v_exp = -v_exp
             # recale sur la courbe Radioss du meme tir si dispo (2 refs
             # possibles), sinon sur la premiere reference du groupe
             t_ref, v_ref = radioss_curves.get(num, (t_ref0, v_ref0))
