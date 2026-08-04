@@ -250,12 +250,20 @@ def plot_results(history, path_prefix, title=None, profile_t_start=None, profile
     fig.savefig(f"{path_prefix}_xt_diagram.png", dpi=150)
     plt.close(fig)
 
+    # Contrainte axiale totale |sigma_xx| = P - S_xx (S_xx<0 en compression) :
+    # grandeur physique comparable a la pression imposee/affichee sous
+    # Radioss, par opposition a P seul (pression hydrostatique EOS), qui
+    # sous-estime le niveau de contrainte des que le materiau a une
+    # resistance au cisaillement (G!=0, S!=0).
     t_pmax = np.array([s["t"] for s in history])
-    Pmax_t = np.array([np.max(s["P"]) for s in history])
+    P_only_max = np.array([np.max(s["P"]) for s in history])
+    sigma_max = np.array([np.max(s["P"] - s["S"]) for s in history])
     fig, ax = plt.subplots()
-    ax.plot(t_pmax, Pmax_t)
+    ax.plot(t_pmax, sigma_max, label="sigma_axial = P - S")
+    ax.plot(t_pmax, P_only_max, "--", label="P seul (hydrostatique)")
     ax.set_xlabel("t [ns]")
-    ax.set_ylabel("Pmax(t) [GPa]")
+    ax.set_ylabel("Contrainte max [GPa]")
+    ax.legend(fontsize=8)
     if title:
         ax.set_title(title)
     fig.savefig(f"{path_prefix}_pmax_vs_t.png", dpi=150)
