@@ -7,3 +7,6 @@ __pycache__/
 # Sorties generees par les runs de simulation
 run_output*
 data.txt
+
+# Fichiers verrou Office (crees quand un .xlsx est ouvert)
+~$*

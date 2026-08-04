@@ -18,26 +18,32 @@ from lsp1d.loading import LaserPulseParams
 # proche du 6061-T6) — a remplacer par des valeurs calibrees sur des
 # essais reels avant toute exploitation quantitative.
 # =====================================================================
-material_name = "Al 6061-T6 (indicatif)"
-rho0 = 2.703        # g/cm3, densite de reference
-C0 = 5.24             # km/s, EOS Us-Up, ordonnee a l'origine (son "bulk")
-S1 = 1.40               # EOS Us-Up, pente lineaire
+material_name = "Al (carte Radioss)"
+rho0 = 2.698        # g/cm3, densite de reference (RHO_I = 2698 kg/m3)
+C0 = 5.328             # km/s, EOS Us-Up, ordonnee a l'origine (son "bulk") — /EOS/GRUNEISEN/2 Radioss (5328 m/s)
+S1 = 1.338               # EOS Us-Up, pente lineaire — idem (Radioss)
 S2 = 0.0                  # EOS Us-Up, terme quadratique (0 => forme ordre 1)
-Gamma0 = 1.97               # coefficient de Gruneisen a rho0
+Gamma0 = 2.0               # coefficient de Gruneisen a rho0 — idem (Radioss)
+# Note : la carte Radioss inclut aussi a=0.48 (correction de Gruneisen avec
+# le volume, Gamma = Gamma0 - a*mu/(1+mu)) — non implemente ici (Gamma0
+# suppose constant).
 
 # =====================================================================
 # MATERIAU — plasticite Johnson-Cook (deformation uniaxiale)
 # sigma_y = (JC_A + JC_B*eps_p^JC_n) * (1+JC_C*ln(eps_p_rate/eps_dot_ref))
 #           * (1 - T_star^JC_m)
-# Valeurs indicatives (Johnson & Cook 1983, Al 2024-T351).
+# Carte Radioss (Al) : E=69 GPa, nu=0.33 -> G=E/(2*(1+nu))=25.94 GPa.
+# a=324 MPa, b=113 MPa, n=0.42, c=0.013, EPS_DOT_0=597 /s.
+# Pas de terme thermique dans la carte Radioss fournie (JC_m/T_melt
+# inchanges, hors perimetre de cette mise a jour).
 # =====================================================================
-G = 27.6                     # GPa, module de cisaillement
-JC_A = 0.265                   # GPa, limite elastique
-JC_B = 0.426                     # GPa, coefficient d'ecrouissage
-JC_n = 0.34                        # exposant d'ecrouissage
-JC_C = 0.015                         # coefficient de sensibilite a la vitesse
+G = 25.94                     # GPa, module de cisaillement (E=69GPa, nu=0.33)
+JC_A = 0.324                   # GPa, limite elastique (a)
+JC_B = 0.113                     # GPa, coefficient d'ecrouissage (b)
+JC_n = 0.42                        # exposant d'ecrouissage (n)
+JC_C = 0.013                         # coefficient de sensibilite a la vitesse (c)
 JC_m = 1.0                             # exposant d'adoucissement thermique
-eps_dot_ref = 1.0e-9                     # 1/ns (= 1/s physique), vitesse de deformation de reference
+eps_dot_ref = 5.97e-7                     # 1/ns (= 597 /s physique, EPS_DOT_0 Radioss)
 T_ref = 293.0                              # K, temperature de reference
 T_melt = 775.0                               # K, temperature de fusion
 cv = 9.0e-4                                    # (km/s)^2/K, capacite calorifique (~0.9 J/g/K)
@@ -55,7 +61,7 @@ T0 = 0.7                   # ns, temps de montee de la pression
 # SIMULATION — maillage et parametres numeriques
 # =====================================================================
 length = 200.0          # um, epaisseur de cible
-n_cells = 320              # nombre de mailles
+n_cells = 960              # nombre de mailles
 cfl_safety = 0.5              # coefficient de securite CFL (<1)
 q1 = 0.5                        # viscosite artificielle, terme lineaire
 q2 = 2.0                          # viscosite artificielle, terme quadratique

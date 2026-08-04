@@ -181,6 +181,8 @@ def save_history(history, path):
         rho=np.array([s["rho"] for s in history]),
         e=np.array([s["e"] for s in history]),
         P=np.array([s["P"] for s in history]),
+        S=np.array([s["S"] for s in history]),
+        q=np.array([s["q"] for s in history]),
     )
 
 
