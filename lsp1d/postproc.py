@@ -250,6 +250,17 @@ def plot_results(history, path_prefix, title=None, profile_t_start=None, profile
     fig.savefig(f"{path_prefix}_xt_diagram.png", dpi=150)
     plt.close(fig)
 
+    t_pmax = np.array([s["t"] for s in history])
+    Pmax_t = np.array([np.max(s["P"]) for s in history])
+    fig, ax = plt.subplots()
+    ax.plot(t_pmax, Pmax_t)
+    ax.set_xlabel("t [ns]")
+    ax.set_ylabel("Pmax(t) [GPa]")
+    if title:
+        ax.set_title(title)
+    fig.savefig(f"{path_prefix}_pmax_vs_t.png", dpi=150)
+    plt.close(fig)
+
     t_fs, u_fs = free_surface_velocity(history)
     fig, ax = plt.subplots()
     ax.plot(t_fs, u_fs)
