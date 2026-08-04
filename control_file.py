@@ -53,7 +53,7 @@ cv = 9.0e-4                                    # (km/s)^2/K, capacite calorifiqu
 # (Fabbro/Berthe, choc laser sans confinement, voir lsp1d/loading.py).
 # =====================================================================
 pulse_t_start = 0.0   # ns, instant de declenchement du tir
-Imax = 87             # GW/cm2, intensite laser crete (-> Pmax ~4.4 GPa, formule _pmax_direct)
+Imax = 87             # GW/cm2, intensite laser crete (-> Pmax ~5.1 GPa impose, formule _pmax_direct ; ~4.6-4.8 GPa reellement simule, cf. viscosite artificielle/maillage)
 Tpul = 15             # ns, duree d'impulsion laser
 T0 = 0.7                   # ns, temps de montee de la pression
 

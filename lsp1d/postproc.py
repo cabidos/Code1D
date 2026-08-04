@@ -186,7 +186,8 @@ def save_history(history, path):
     )
 
 
-def plot_results(history, path_prefix, title=None, profile_t_start=None, profile_t_end=None):
+def plot_results(history, path_prefix, title=None, profile_t_start=None, profile_t_end=None,
+                  extra_profile_times=(1.0, 3.5)):
     """profile_t_start (ns, optionnel) : premier instant a tracer sur le
     graphe des profils de pression. Par defaut (None), on saute
     automatiquement les instantanes ou rien ne s'est encore passe
@@ -197,6 +198,11 @@ def plot_results(history, path_prefix, title=None, profile_t_start=None, profile
     s'arreter juste avant que le front n'atteigne la face arriere (cf.
     breakout_time) et ne pas melanger l'onde incidente propre avec la
     reflexion/reverberation sur le meme graphe.
+
+    extra_profile_times (ns) : instants ajoutes de force a l'echantillonnage
+    (en plus des 6 pas automatiques), typiquement pour visualiser le pic de
+    pression impose pres de la surface (cf. loading.py, pic vers t=T0 puis
+    plateau/decroissance jusqu'a Tpul).
     """
     import matplotlib
     matplotlib.use("Agg")
@@ -216,6 +222,10 @@ def plot_results(history, path_prefix, title=None, profile_t_start=None, profile
     last_idx = max(last_idx, first_idx)
 
     sample_idx = np.linspace(first_idx, last_idx, min(6, last_idx - first_idx + 1)).astype(int)
+    if extra_profile_times:
+        t_all = np.array([s["t"] for s in history])
+        extra_idx = [int(np.argmin(np.abs(t_all - te))) for te in extra_profile_times]
+        sample_idx = np.unique(np.concatenate([sample_idx, extra_idx]))
 
     fig, ax = plt.subplots()
     for i in sample_idx:
