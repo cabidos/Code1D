@@ -67,7 +67,7 @@ q1 = 0.5                        # viscosite artificielle, terme lineaire
 q2 = 2.0                          # viscosite artificielle, terme quadratique
 filter_alpha = 0.15                 # amortissement du mode noeud-a-noeud (0=off, 0.5=max stable)
 t_max = 80.0                          # ns, duree simulee
-output_dt = 0.5                       # ns, pas d'echantillonnage des sorties
+output_dt = 0.05                       # ns, pas d'echantillonnage des sorties (assez fin pour capturer le pic a T0=0.7ns)
 boundary_left = "pressure_driven"         # CL gauche : "pressure_driven"
 boundary_right = "free_surface"             # CL droite : "free_surface" / "non_reflecting"
 
