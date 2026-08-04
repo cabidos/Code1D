@@ -48,6 +48,21 @@ def onset_time(t, v, frac=0.1):
     return t[idx]
 
 
+def align_by_xcorr(t_ref, v_ref, t_exp, v_exp, dt=0.2):
+    """Decalage a appliquer a t_exp pour maximiser la correlation avec la
+    courbe de reference (forme entiere du signal, robuste au bruit —
+    contrairement a un seuil sur un seul point, cf. tirs 34/41/46 ou le
+    bruit depasse 10% du pic avant l'arrivee du choc)."""
+    t0 = min(t_ref.min(), t_exp.min())
+    t1 = max(t_ref.max(), t_exp.max())
+    grid = np.arange(t0, t1, dt)
+    ref_g = np.interp(grid, t_ref, v_ref, left=0.0, right=0.0)
+    exp_g = np.interp(grid, t_exp, v_exp, left=0.0, right=0.0)
+    corr = np.correlate(ref_g, exp_g, mode="full")
+    lag = np.argmax(corr) - (len(exp_g) - 1)
+    return lag * dt
+
+
 def reference_shots(shots):
     """1 tir (le plus proche de la moyenne) ou 2 (min/max) selon la dispersion de I."""
     if len(shots) == 1:
@@ -75,8 +90,7 @@ with h5py.File(H5_PATH, "r") as h5f:
                      linewidth=2,
                      label=f"Radioss (tir {num}, I={I_by_shot[num]:.0f} GW/cm2)")
 
-        t0_ref, v0_ref = next(iter(radioss_curves.values()))
-        t0_rad_ref = onset_time(t0_ref, v0_ref)
+        t_ref0, v_ref0 = next(iter(radioss_curves.values()))
 
         n_exp = 0
         for i, num in enumerate(shots):
@@ -88,8 +102,11 @@ with h5py.File(H5_PATH, "r") as h5f:
             exp = np.loadtxt(exp_path, delimiter=",")
             t_exp = exp[:, 0] * 1e9
             v_exp = exp[:, 1] * 1000.0
-            t0_exp = onset_time(t_exp, v_exp)
-            ax.plot(t_exp - t0_exp + t0_rad_ref, v_exp, color=color,
+            # recale sur la courbe Radioss du meme tir si dispo (2 refs
+            # possibles), sinon sur la premiere reference du groupe
+            t_ref, v_ref = radioss_curves.get(num, (t_ref0, v_ref0))
+            shift = align_by_xcorr(t_ref, v_ref, t_exp, v_exp)
+            ax.plot(t_exp + shift, v_exp, color=color,
                      linewidth=1, alpha=0.85,
                      label=f"Exp. tir {num} (I={I_by_shot[num]:.0f} GW/cm2)")
 
