@@ -3,4 +3,5 @@ scipy
 matplotlib
 pytest
 openpyxl
+h5py
 spyder-kernels==3.1.*
