@@ -1,0 +1,6 @@
+numpy
+scipy
+matplotlib
+pytest
+openpyxl
+spyder-kernels==3.1.*

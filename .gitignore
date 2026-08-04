@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.claude/
+
+# Sorties generees par les runs de simulation
+run_output*
+data.txt
